@@ -1,0 +1,11 @@
+body {
+    background-color: rgb(46, 46, 46);
+    margin: 0;
+}
+
+#player {
+    height: 50px;
+    width: 50px;
+    background-color: white;
+    position: fixed;
+}
