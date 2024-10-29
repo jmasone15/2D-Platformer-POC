@@ -1,42 +1,11 @@
-const boundaries = {
-	left: 5,
-	right: window.innerWidth - 55,
-	top: 5,
-	bottom: window.innerHeight - 55
-};
-
-const playerLocation = {
-	left: 5,
-	top: boundaries.bottom
-};
-
-const player = document.getElementById('player');
-
-const updatePlayerDOM = () => {
-	player.setAttribute(
-		'style',
-		`left: ${playerLocation.left}px; top: ${playerLocation.top}px`
-	);
-};
-
-document.addEventListener('keydown', ({ key }) => {
-	console.log(key);
-
-	switch (key) {
-		case 'ArrowRight':
-			playerLocation.left += 3;
-			break;
-		case 'ArrowLeft':
-			playerLocation.left -= 3;
-			break;
-
-		default:
-			break;
+const gameArea = {
+	element: document.createElement('canvas'),
+	start: function () {
+		this.element.setAttribute('id', 'game-area');
+		this.context = this.element.getContext('2d');
+		document.body.appendChild(this.element);
 	}
+};
 
-	updatePlayerDOM();
-});
-
-updatePlayerDOM();
-
-// https://www.w3schools.com/graphics/game_movement.asp
+gameArea.start();
+console.log(gameArea);
