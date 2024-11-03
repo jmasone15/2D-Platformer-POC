@@ -8,6 +8,18 @@ import Input, { UP, DOWN, LEFT, RIGHT } from './assets/js/Input.js';
 import { gridCells, isSpaceFree } from './assets/js/helpers/grid.js';
 import { moveTowards } from './assets/js/helpers/moveTowards.js';
 import { walls } from './assets/js/levels/level1.js';
+import Animations from './assets/js/Animations.js';
+import FrameIndexPattern from './assets/js/FrameIndexPattern.js';
+import {
+	WALK_DOWN,
+	WALK_LEFT,
+	WALK_RIGHT,
+	WALK_UP,
+	STAND_DOWN,
+	STAND_LEFT,
+	STAND_RIGHT,
+	STAND_UP
+} from './assets/js/objects/Hero/heroAnimations.js';
 
 // Canvas & Context
 const canvas = document.getElementById('game-canvas');
@@ -29,16 +41,27 @@ const hero = new Sprite({
 	hFrames: 3,
 	vFrames: 8,
 	frame: 1,
-	position: new Vector2(gridCells(6), gridCells(5))
+	position: new Vector2(gridCells(6), gridCells(5)),
+	animations: new Animations({
+		walkDown: new FrameIndexPattern(WALK_DOWN),
+		walkUp: new FrameIndexPattern(WALK_UP),
+		walkLeft: new FrameIndexPattern(WALK_LEFT),
+		walkRight: new FrameIndexPattern(WALK_RIGHT),
+		standDown: new FrameIndexPattern(STAND_DOWN),
+		standUp: new FrameIndexPattern(STAND_UP),
+		standLeft: new FrameIndexPattern(STAND_LEFT),
+		standRight: new FrameIndexPattern(STAND_RIGHT)
+	})
 });
 const heroDestinationPosition = hero.position.duplicate();
+let heroFacing = DOWN;
 const shadow = new Sprite({
 	resource: resources.images.shadow,
 	frameSize: new Vector2(32, 32)
 });
 
 // Updating entities in the game
-const update = () => {
+const update = (delta) => {
 	const distance = moveTowards(hero, heroDestinationPosition, 1);
 
 	// Attempt to move again if the hero is at his position
@@ -46,10 +69,30 @@ const update = () => {
 	if (hasArrived) {
 		tryMove();
 	}
+
+	// Work on hero animations
+	hero.step(delta);
 };
 
 const tryMove = () => {
 	if (!input.direction) {
+		switch (heroFacing) {
+			case LEFT:
+				hero.animations.play('standLeft');
+				break;
+			case RIGHT:
+				hero.animations.play('standRight');
+				break;
+			case UP:
+				hero.animations.play('standUp');
+				break;
+			case DOWN:
+				hero.animations.play('standDown');
+				break;
+			default:
+				break;
+		}
+
 		return;
 	}
 
@@ -57,22 +100,24 @@ const tryMove = () => {
 	let nextY = heroDestinationPosition.y;
 	const gridSize = 16;
 
-	if (input.direction === UP) {
-		nextY -= gridSize;
-		hero.frame = 6;
-	}
 	if (input.direction === DOWN) {
 		nextY += gridSize;
-		hero.frame = 0;
+		hero.animations.play('walkDown');
+	}
+	if (input.direction === UP) {
+		nextY -= gridSize;
+		hero.animations.play('walkUp');
 	}
 	if (input.direction === LEFT) {
 		nextX -= gridSize;
-		hero.frame = 9;
+		hero.animations.play('walkLeft');
 	}
 	if (input.direction === RIGHT) {
 		nextX += gridSize;
-		hero.frame = 3;
+		hero.animations.play('walkRight');
 	}
+
+	heroFacing = input.direction ?? heroFacing;
 
 	if (isSpaceFree(walls, nextX, nextY)) {
 		heroDestinationPosition.x = nextX;
