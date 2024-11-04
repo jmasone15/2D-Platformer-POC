@@ -8,6 +8,7 @@ import Input from './assets/js/Input.js';
 import { gridCells } from './assets/js/helpers/grid.js';
 import GameObject from './assets/js/GameObject.js';
 import Hero from './assets/js/objects/Hero/Hero.js';
+import Camera from './assets/js/Camera.js';
 
 // Canvas & Context
 const canvas = document.getElementById('game-canvas');
@@ -30,9 +31,11 @@ const ground = new Sprite({
 const hero = new Hero(gridCells(6), gridCells(5));
 
 // Add sprites as children to the main scene.
-mainScene.addChild(sky);
 mainScene.addChild(ground);
 mainScene.addChild(hero);
+
+const camera = new Camera();
+mainScene.addChild(camera);
 
 // Add an Input class to the main scene.
 mainScene.input = new Input();
@@ -42,7 +45,22 @@ const update = (delta) => {
 	mainScene.stepEntry(delta, mainScene);
 };
 const draw = () => {
+	// Clear anything stale
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	sky.drawImage(ctx, 0, 0);
+
+	// Save the current state (for camera offset)
+	ctx.save();
+
+	// Offset by camera position
+	ctx.translate(camera.position.x, camera.position.y);
+
+	// Draw objects in the mounted scene
 	mainScene.draw(ctx, 0, 0);
+
+	// Restore to original state
+	ctx.restore();
 };
 
 // Game Start!

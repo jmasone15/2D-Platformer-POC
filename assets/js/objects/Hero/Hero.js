@@ -18,6 +18,7 @@ import {
 	STAND_RIGHT,
 	STAND_UP
 } from './heroAnimations.js';
+import { events } from '../../Event.js';
 
 export default class Hero extends GameObject {
 	constructor(x, y) {
@@ -116,5 +117,18 @@ export default class Hero extends GameObject {
 		if (hasArrived) {
 			this.tryMove(root);
 		}
+
+		this.tryEmitPosition();
+	}
+
+	tryEmitPosition() {
+		if (this.lastX === this.position.x && this.lastY === this.position.y) {
+			return;
+		}
+
+		this.lastX = this.position.x;
+		this.lastY = this.position.y;
+
+		events.emit('HERO_POSITION', this.position);
 	}
 }

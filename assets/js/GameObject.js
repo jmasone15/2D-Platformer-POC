@@ -22,8 +22,9 @@ export default class GameObject {
 
 	// Draw Entry
 	draw(ctx, x, y) {
-		const drawPosX = x + this.position.x;
-		const drawPosY = y + this.position.y;
+		// My attempt at fixing the stuttering of hero
+		const drawPosX = Math.round(x + this.position.x);
+		const drawPosY = Math.round(y + this.position.y);
 
 		// Render Image
 		this.drawImage(ctx, drawPosX, drawPosY);
