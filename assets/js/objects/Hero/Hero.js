@@ -16,7 +16,8 @@ import {
 	STAND_DOWN,
 	STAND_LEFT,
 	STAND_RIGHT,
-	STAND_UP
+	STAND_UP,
+	PICK_UP_DOWN
 } from './heroAnimations.js';
 import { events } from '../../Event.js';
 
@@ -35,6 +36,8 @@ export default class Hero extends GameObject {
 
 		this.facingDirection = DOWN;
 		this.destinationPosition = this.position.duplicate();
+		this.itemPickupTime = 0;
+		this.itemPickupShell = null;
 		this.body = new Sprite({
 			resource: resources.images.hero,
 			frameSize: new Vector2(32, 32),
@@ -50,10 +53,15 @@ export default class Hero extends GameObject {
 				standDown: new FrameIndexPattern(STAND_DOWN),
 				standUp: new FrameIndexPattern(STAND_UP),
 				standLeft: new FrameIndexPattern(STAND_LEFT),
-				standRight: new FrameIndexPattern(STAND_RIGHT)
+				standRight: new FrameIndexPattern(STAND_RIGHT),
+				pickUpDown: new FrameIndexPattern(PICK_UP_DOWN)
 			})
 		});
 		this.addChild(this.body);
+
+		events.on('HERO_PICKS_UP_ITEM', this, (data) => {
+			this.onPickupItem(data);
+		});
 	}
 
 	tryMove(root) {
@@ -110,6 +118,12 @@ export default class Hero extends GameObject {
 	}
 
 	step(delta, root) {
+		// Lock movement if celebrating an item pickup
+		if (this.itemPickupTime > 0) {
+			this.workOnItemPickup(delta);
+			return;
+		}
+
 		const distance = moveTowards(this, this.destinationPosition, 1);
 
 		// Attempt to move again if the hero is at his position
@@ -130,5 +144,31 @@ export default class Hero extends GameObject {
 		this.lastY = this.position.y;
 
 		events.emit('HERO_POSITION', this.position);
+	}
+
+	workOnItemPickup(delta) {
+		this.itemPickupTime -= delta;
+		this.body.animations.play('pickUpDown');
+
+		if (this.itemPickupTime <= 0) {
+			this.itemPickupShell.destroy();
+		}
+	}
+
+	onPickupItem({ image, position }) {
+		// Make sure we land right on the item
+		this.destinationPosition = position.duplicate();
+
+		// Start the pickup animation
+		this.itemPickupTime = 1000;
+
+		this.itemPickupShell = new GameObject({});
+		this.itemPickupShell.addChild(
+			new Sprite({
+				resource: image,
+				position: new Vector2(0, -18)
+			})
+		);
+		this.addChild(this.itemPickupShell);
 	}
 }

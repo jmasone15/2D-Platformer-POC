@@ -9,6 +9,7 @@ import { gridCells } from './assets/js/helpers/grid.js';
 import GameObject from './assets/js/GameObject.js';
 import Hero from './assets/js/objects/Hero/Hero.js';
 import Camera from './assets/js/Camera.js';
+import Rod from './assets/js/objects/Rod/Rod.js';
 
 // Canvas & Context
 const canvas = document.getElementById('game-canvas');
@@ -36,6 +37,9 @@ mainScene.addChild(hero);
 
 const camera = new Camera();
 mainScene.addChild(camera);
+
+const rod = new Rod(gridCells(7), gridCells(6));
+mainScene.addChild(rod);
 
 // Add an Input class to the main scene.
 mainScene.input = new Input();
