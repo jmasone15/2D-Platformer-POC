@@ -59,6 +59,7 @@ export default class Hero extends GameObject {
 		});
 		this.addChild(this.body);
 
+		// React to picking up an item
 		events.on('HERO_PICKS_UP_ITEM', this, (data) => {
 			this.onPickupItem(data);
 		});
